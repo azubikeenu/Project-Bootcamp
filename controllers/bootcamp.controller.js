@@ -1,4 +1,6 @@
 const { StatusCodes } = require('http-status-codes');
+const { Bootcamp } = require('../models');
+const { findByIdAndDelete } = require('../models/Bootcamp');
 
 module.exports = class BootCampController {
   /**
@@ -9,10 +11,18 @@ module.exports = class BootCampController {
    * @param {Object} res
    * @param {Function} next
    */
-  static getBootCamps = (req, res, next) => {
-    res
-      .status(StatusCodes.OK)
-      .json({ status: 'Success', data: { message: 'Showing all bootcamps' } });
+  static getBootCamps = async (req, res, next) => {
+    try {
+      const bootcamps = await Bootcamp.find();
+      res.status(StatusCodes.OK).json({
+        status: 'Success',
+        data: { count: bootcamps.length, bootcamps },
+      });
+    } catch (ex) {
+      res
+        .status(StatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ status: 'Error', message: ex.message });
+    }
   };
 
   /**
@@ -23,11 +33,25 @@ module.exports = class BootCampController {
    * @param {Object} res
    * @param {Function} next
    */
-  static getBootCamp = (req, res, next) => {
-    res.status(StatusCodes.OK).json({
-      status: 'Success',
-      data: { message: `Retreiving bootcamp ${req.params.id}` },
-    });
+  static getBootCamp = async (req, res, next) => {
+    try {
+      const bootcamp = await Bootcamp.findById(req.params.id);
+
+      if (!bootcamp)
+        return res.status(StatusCodes.NOT_FOUND).json({
+          status: 'Fail',
+          message: `No bootcamp found with id ${req.params.id}`,
+        });
+
+      res.status(StatusCodes.OK).json({
+        status: 'Success',
+        data: { bootcamp },
+      });
+    } catch (ex) {
+      res
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ status: 'Error', message: ex.message });
+    }
   };
 
   /**
@@ -38,10 +62,17 @@ module.exports = class BootCampController {
    * @param {Object} res
    * @param {Function} next
    */
-  static createBootcamp = (req, res, next) => {
-    res
-      .status(StatusCodes.CREATED)
-      .json({ status: 'Success', data: { message: 'Successfully created' } });
+  static createBootcamp = async (req, res, next) => {
+    try {
+      const bootcamp = await Bootcamp.create(req.body);
+      res
+        .status(StatusCodes.CREATED)
+        .json({ status: 'Success', data: bootcamp });
+    } catch (ex) {
+      res
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ status: 'Error', message: ex.message });
+    }
   };
 
   /**
@@ -52,11 +83,32 @@ module.exports = class BootCampController {
    * @param {Object} res
    * @param {Function} next
    */
-  static updateBootcamp = (req, res, next) => {
-    res.status(StatusCodes.OK).json({
-      status: 'Success',
-      data: { message: `Updating bootcamp ${req.params.id}` },
-    });
+  static updateBootcamp = async (req, res, next) => {
+    try {
+      const bootcamp = await Bootcamp.findByIdAndUpdate(
+        req.params.id,
+        req.body,
+        {
+          new: true,
+          runValidators: true,
+        }
+      );
+
+      if (!bootcamp)
+        return res.status(StatusCodes.NOT_FOUND).json({
+          status: 'Fail',
+          message: `No bootcamp found with id ${req.params.id}`,
+        });
+
+      res.status(StatusCodes.OK).json({
+        status: 'Success',
+        data: { bootcamp },
+      });
+    } catch (ex) {
+      res
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ status: 'Error', message: ex.message });
+    }
   };
 
   /**
@@ -67,10 +119,21 @@ module.exports = class BootCampController {
    * @param {Object} res
    * @param {Function} next
    */
-  static deleteBootCamp = (req, res, next) => {
-    res.status(StatusCodes.OK).json({
-      status: 'Success',
-      data: { message: `Deleted bootcamp ${req.params.id}` },
-    });
+  static deleteBootCamp = async (req, res, next) => {
+    try {
+      const bootcamp = await Bootcamp.findByIdAndDelete(req.params.id);
+      if (!bootcamp)
+        return res
+          .status(StatusCodes.BAD_REQUEST)
+          .json({
+            status: 'Fail',
+            message: `No bootcamp found with id ${req.params.id}`,
+          });
+      res.status(StatusCodes.NO_CONTENT).json({ status: 'Success', data: {} });
+    } catch (ex) {
+      res
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ status: 'Error', message: ex.message });
+    }
   };
 };
