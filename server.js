@@ -1,15 +1,16 @@
 const express = require('express');
 const path = require('path');
+
+require('dotenv').config({
+  path: path.join(__dirname, 'config', 'config.env'),
+});
+
 const morgan = require('morgan');
 const colors = require('colors');
 const router = require('./routes');
 const DB = require('./config/db.config');
 
 const middlewares = require('./middlewares');
-
-require('dotenv').config({
-  path: path.join(__dirname, 'config', 'config.env'),
-});
 
 // CONNECT TO THE DATABSE
 new DB().getConnection();

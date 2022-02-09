@@ -1,3 +1,4 @@
 const ErrorResponse = require('./errorResponse');
+const geocoder = require('./geocoder');
 
-module.exports = { ErrorResponse };
+module.exports = { ErrorResponse, geocoder };
