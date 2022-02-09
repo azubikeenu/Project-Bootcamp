@@ -1,6 +1,6 @@
 const { StatusCodes } = require('http-status-codes');
 const { Bootcamp } = require('../models');
-const { ErrorResponse, geocoder } = require('../utils');
+const { ErrorResponse, geocoder, QueryBuilder } = require('../utils');
 const { asyncHandler } = require('../middlewares');
 
 module.exports = class BootCampController {
@@ -13,7 +13,14 @@ module.exports = class BootCampController {
    * @param {Function} next
    */
   static getBootCamps = asyncHandler(async (req, res, next) => {
-    const bootcamps = await Bootcamp.find();
+    console.log(req.query);
+    const { query } = new QueryBuilder(Bootcamp.find(), req.query)
+      .filter()
+      .select()
+      .sort()
+      .paginate();
+    const bootcamps = await query;
+    console.log(req.query);
     res.status(StatusCodes.OK).json({
       status: 'Success',
       data: { count: bootcamps.length, bootcamps },
@@ -119,11 +126,9 @@ module.exports = class BootCampController {
       location: { $geoWithin: { $centerSphere: [[lng, lat], radius] } },
     });
 
-    res
-      .status(StatusCodes.OK)
-      .json({
-        status: 'Success',
-        data: { count: bootcamps.length, bootcamps },
-      });
+    res.status(StatusCodes.OK).json({
+      status: 'Success',
+      data: { count: bootcamps.length, bootcamps },
+    });
   });
 };
