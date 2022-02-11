@@ -13,14 +13,12 @@ module.exports = class BootCampController {
    * @param {Function} next
    */
   static getBootCamps = asyncHandler(async (req, res, next) => {
-    console.log(req.query);
-    const { query } = new QueryBuilder(Bootcamp.find(), req.query)
+    const { query } = new QueryBuilder(Bootcamp.find().populate('courses'), req.query)
       .filter()
       .select()
       .sort()
       .paginate();
     const bootcamps = await query;
-    console.log(req.query);
     res.status(StatusCodes.OK).json({
       status: 'Success',
       data: { count: bootcamps.length, bootcamps },
@@ -96,12 +94,13 @@ module.exports = class BootCampController {
    * @param {Function} next
    */
   static deleteBootCamp = asyncHandler(async (req, res, next) => {
-    const bootcamp = await Bootcamp.findByIdAndDelete(req.params.id);
+    const bootcamp = await Bootcamp.findById(req.params.id);
     if (!bootcamp)
       return res.status(StatusCodes.BAD_REQUEST).json({
         status: 'Fail',
         message: `No bootcamp found with id ${req.params.id}`,
       });
+      bootcamp.remove();
     res.status(StatusCodes.NO_CONTENT).json({ status: 'Success', data: {} });
   });
 
@@ -119,7 +118,7 @@ module.exports = class BootCampController {
     const loc = await geocoder.geocode(zipcode);
     const lat = loc[0].latitude;
     const lng = loc[0].longitude;
-    // calculate the radios in radians ==> divide distance by radius of the earth(in miles[3963.1676] or km[6378.09999805])
+    // calculate the radius in radians ==> divide distance by radius of the earth(in miles[3963.1676] or km[6378.09999805])
     const radius = distance / 3963.1676;
 
     const bootcamps = await Bootcamp.find({

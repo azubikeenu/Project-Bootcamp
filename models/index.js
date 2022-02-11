@@ -1,3 +1,4 @@
 const Bootcamp = require('./Bootcamp');
+const Course = require('./Course');
 
-module.exports = { Bootcamp };
+module.exports = { Bootcamp, Course };

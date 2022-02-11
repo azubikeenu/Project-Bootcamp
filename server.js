@@ -27,6 +27,7 @@ if (process.env.NODE_ENV === 'development') {
 app.use(express.json());
 
 app.use(`${ROOT_PATH}/bootcamps`, router.bootCampRouter);
+app.use(`${ROOT_PATH}/courses`, router.courseRouter);
 
 app.use(middlewares.errorHandler);
 
