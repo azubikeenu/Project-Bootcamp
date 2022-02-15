@@ -136,7 +136,9 @@ bootcampSchema.virtual('courses', {
 
 // Cascade delete courses when bootcamp is deleted
 bootcampSchema.pre('remove', async function (next) {
+  // this is actually cool
   await this.model('Course').deleteMany({ bootcamp: this._id });
+
   next();
 });
 
