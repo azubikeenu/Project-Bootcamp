@@ -1,6 +1,6 @@
 const { StatusCodes } = require('http-status-codes');
 const { Course, Bootcamp } = require('../models');
-const { QueryBuilder } = require('../utils');
+const { QueryBuilder, ErrorResponse } = require('../utils');
 const { asyncHandler } = require('../middlewares');
 
 module.exports = class CourseController {
@@ -48,11 +48,9 @@ module.exports = class CourseController {
       select: 'name description',
     });
     if (!course)
-      return res.status(StatusCodes.NOT_FOUND).json({
-        status: 'Fail',
-        message: `No course found with that id : ${req.params.id}`,
-      });
-
+      return next(
+        new ErrorResponse(`No course found with id : ${req.params.id}`)
+      );
     return res.status(StatusCodes.OK).json({ status: 'Success', data: course });
   });
 
@@ -68,12 +66,10 @@ module.exports = class CourseController {
   static createCourse = asyncHandler(async (req, res, next) => {
     req.body.bootcamp = req.params.bootcampId;
     const bootcamp = await Bootcamp.findById(req.params.bootcampId);
-    if (!bootcamp)
-      return res.status(StatusCodes.NOT_FOUND).json({
-        status: 'Fail',
-        message: `No bootcamp found with id ${req.params.bootcampId}`,
-      });
-
+    if (!course)
+      return next(
+        new ErrorResponse(`No course found with id : ${req.params.id}`)
+      );
     const course = await Course.create(req.body);
     return res
       .status(StatusCodes.CREATED)
@@ -92,13 +88,12 @@ module.exports = class CourseController {
   static updateCourse = asyncHandler(async (req, res, next) => {
     const course = await Course.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
-      runValidators : true
+      runValidators: true,
     });
     if (!course)
-      return res.status(StatusCodes.NOT_FOUND).json({
-        status: 'Fail',
-        message: `No course found with id ${req.params.id}`,
-      });
+      return next(
+        new ErrorResponse(`No course found with id : ${req.params.id}`)
+      );
     return res.status(StatusCodes.OK).json({ status: 'Success', data: course });
   });
   /**
@@ -113,12 +108,10 @@ module.exports = class CourseController {
   static deleteCourse = asyncHandler(async (req, res, next) => {
     const course = await Course.findById(req.params.id, req.body);
     if (!course)
-      return res.status(StatusCodes.NOT_FOUND).json({
-        status: 'Fail',
-        message: `No course found with id ${req.params.id}`,
-      });
-
-     course.remove();
+      return next(
+        new ErrorResponse(`No course found with id : ${req.params.id}`)
+      );
+    course.remove();
     return res
       .status(StatusCodes.NO_CONTENT)
       .json({ status: 'Success', data: {} });

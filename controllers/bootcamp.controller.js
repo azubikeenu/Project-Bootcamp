@@ -2,6 +2,7 @@ const { StatusCodes } = require('http-status-codes');
 const { Bootcamp } = require('../models');
 const { ErrorResponse, geocoder, QueryBuilder } = require('../utils');
 const { asyncHandler } = require('../middlewares');
+const path = require('path');
 
 module.exports = class BootCampController {
   /**
@@ -13,7 +14,10 @@ module.exports = class BootCampController {
    * @param {Function} next
    */
   static getBootCamps = asyncHandler(async (req, res, next) => {
-    const { query } = new QueryBuilder(Bootcamp.find().populate('courses'), req.query)
+    const { query } = new QueryBuilder(
+      Bootcamp.find().populate('courses'),
+      req.query
+    )
       .filter()
       .select()
       .sort()
@@ -36,10 +40,12 @@ module.exports = class BootCampController {
   static getBootCamp = asyncHandler(async (req, res, next) => {
     const bootcamp = await Bootcamp.findById(req.params.id);
     if (!bootcamp)
-      return res.status(StatusCodes.NOT_FOUND).json({
-        status: 'Fail',
-        message: `No bootcamp found with id ${req.params.id}`,
-      });
+      return next(
+        new ErrorResponse(
+          `No bootcamp found with id ${req.params.id}`,
+          StatusCodes.BAD_REQUEST
+        )
+      );
     res.status(StatusCodes.OK).json({
       status: 'Success',
       data: { bootcamp },
@@ -87,7 +93,7 @@ module.exports = class BootCampController {
 
   /**
    * @description Delete existing bootcamp
-   * @route PUT /api/v1/bootcamps/:id
+   * @route DELETE /api/v1/bootcamps/:id
    * @access private
    * @param {Object} req
    * @param {Object} res
@@ -96,11 +102,13 @@ module.exports = class BootCampController {
   static deleteBootCamp = asyncHandler(async (req, res, next) => {
     const bootcamp = await Bootcamp.findById(req.params.id);
     if (!bootcamp)
-      return res.status(StatusCodes.BAD_REQUEST).json({
-        status: 'Fail',
-        message: `No bootcamp found with id ${req.params.id}`,
-      });
-      bootcamp.remove();
+      return next(
+        new ErrorResponse(
+          `No bootcamp found with id ${req.params.id}`,
+          StatusCodes.BAD_REQUEST
+        )
+      );
+    bootcamp.remove();
     res.status(StatusCodes.NO_CONTENT).json({ status: 'Success', data: {} });
   });
 
@@ -129,5 +137,71 @@ module.exports = class BootCampController {
       status: 'Success',
       data: { count: bootcamps.length, bootcamps },
     });
+  });
+
+  /**
+   * @description Upload photo for bootcamp
+   * @route PUT /api/v1/bootcamps/:id/photo
+   * @access private
+   * @param {Object} req
+   * @param {Object} res
+   * @param {Function} next
+   */
+  static bootcampPhotoUpload = asyncHandler(async (req, res, next) => {
+    const bootcamp = await Bootcamp.findById(req.params.id);
+    if (!bootcamp)
+      return next(
+        new ErrorResponse(
+          `No bootcamp found with id ${req.params.id}`,
+          StatusCodes.BAD_REQUEST
+        )
+      );
+    if (!req.files)
+      return next(
+        new ErrorResponse(
+          `Please choose a file to upload`,
+          StatusCodes.BAD_REQUEST
+        )
+      );
+
+    const { file } = req.files;
+    if (!file.mimetype.startsWith('image')) {
+      return next(
+        new ErrorResponse(
+          'Please upload an image file',
+          StatusCodes.BAD_REQUEST
+        )
+      );
+    }
+    if (file.size > process.env.MAX_FILE_SIZE) {
+      return next(
+        new ErrorResponse(
+          `File size must be less than 1MB`,
+          StatusCodes.BAD_REQUEST
+        )
+      );
+    }
+
+    //Create a unique file name
+    file.name = `photo_${bootcamp._id}${path.parse(file.name).ext}`;
+
+    // upload the file
+    file.mv(`${process.env.FILE_UPLOAD_PATH}/${file.name}`, async (err) => {
+      if (err) {
+        console.log(err);
+        return next(
+          new ErrorResponse(
+            `Something went wrong in uploading your file`,
+            StatusCodes.INTERNAL_SERVER_ERROR
+          )
+        );
+      }
+    });
+
+    await Bootcamp.findByIdAndUpdate(req.params.id, { photo: file.name });
+
+    return res
+      .status(StatusCodes.OK)
+      .json({ status: 'Success', data: file.name });
   });
 };

@@ -43,8 +43,8 @@ module.exports = (err, req, res, next) => {
     error = handleValidationError(error);
   }
 
-  res.status(error.statusCode || 500).json({
+   res.status(err.statusCode || 500).json({
     status: 'Fail',
-    message: error.message || 'Something went wrong',
+    message: err.message || 'Something went wrong',
   });
 };
