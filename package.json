@@ -20,7 +20,8 @@
     "mongoose": "^6.1.10",
     "morgan": "^1.10.0",
     "node-geocoder": "^3.28.0",
-    "slugify": "^1.6.5"
+    "slugify": "^1.6.5",
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
     "nodemon": "^2.0.15"

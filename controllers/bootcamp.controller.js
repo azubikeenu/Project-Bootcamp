@@ -114,7 +114,7 @@ module.exports = class BootCampController {
 
   /**
    * @description Get bootcamp wihin a radius
-   * @route PUT /api/v1/bootcamps/radius/:zipcode/:distance in miles
+   * @route GET /api/v1/bootcamps/radius/:zipcode/:distance in miles
    * @access private
    * @param {Object} req
    * @param {Object} res
@@ -156,52 +156,9 @@ module.exports = class BootCampController {
           StatusCodes.BAD_REQUEST
         )
       );
-    if (!req.files)
-      return next(
-        new ErrorResponse(
-          `Please choose a file to upload`,
-          StatusCodes.BAD_REQUEST
-        )
-      );
-
-    const { file } = req.files;
-    if (!file.mimetype.startsWith('image')) {
-      return next(
-        new ErrorResponse(
-          'Please upload an image file',
-          StatusCodes.BAD_REQUEST
-        )
-      );
-    }
-    if (file.size > process.env.MAX_FILE_SIZE) {
-      return next(
-        new ErrorResponse(
-          `File size must be less than 1MB`,
-          StatusCodes.BAD_REQUEST
-        )
-      );
-    }
-
-    //Create a unique file name
-    file.name = `photo_${bootcamp._id}${path.parse(file.name).ext}`;
-
-    // upload the file
-    file.mv(`${process.env.FILE_UPLOAD_PATH}/${file.name}`, async (err) => {
-      if (err) {
-        console.log(err);
-        return next(
-          new ErrorResponse(
-            `Something went wrong in uploading your file`,
-            StatusCodes.INTERNAL_SERVER_ERROR
-          )
-        );
-      }
-    });
-
-    await Bootcamp.findByIdAndUpdate(req.params.id, { photo: file.name });
-
+    await Bootcamp.findByIdAndUpdate(req.params.id, { photo: req.fileName});
     return res
       .status(StatusCodes.OK)
-      .json({ status: 'Success', data: file.name });
+      .json({ status: 'Success', data: req.fileName });
   });
 };

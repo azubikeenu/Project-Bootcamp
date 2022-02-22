@@ -1,4 +1,6 @@
+const {imageUploader} = require('../middlewares')
 const router = require('express').Router();
+
 const {
   getBootCamp,
   getBootCamps,
@@ -13,7 +15,7 @@ const courseRouter = require('./course.routes');
 
 router.route('/radius/:zipcode/:distance').get(getBootCampsInRadius);
 
-router.route('/:id/photo').put(bootcampPhotoUpload);
+router.route('/:id/photo').put(imageUploader,bootcampPhotoUpload);
 
 router.route('/').get(getBootCamps).post(createBootcamp);
 
