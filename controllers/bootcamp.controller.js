@@ -2,7 +2,7 @@ const { StatusCodes } = require('http-status-codes');
 const { Bootcamp } = require('../models');
 const { ErrorResponse, geocoder, QueryBuilder } = require('../utils');
 const { asyncHandler } = require('../middlewares');
-const path = require('path');
+
 
 module.exports = class BootCampController {
   /**

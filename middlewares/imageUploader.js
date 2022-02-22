@@ -29,7 +29,7 @@ module.exports = catchAsync((req, res, next) => {
 
 
  req.fileName = `photo_${uuid()}${path.parse(file.name).ext}`;
-  // upload the file
+// upload the file
   file.mv(`${process.env.FILE_UPLOAD_PATH}/${req.fileName}`, async (err) => {
     if (err) {
       console.log(err);

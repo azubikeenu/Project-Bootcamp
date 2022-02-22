@@ -39,6 +39,7 @@ app.use(fileupload())
 
 app.use(`${ROOT_PATH}/bootcamps`, router.bootCampRouter);
 app.use(`${ROOT_PATH}/courses`, router.courseRouter);
+app.use(`${ROOT_PATH}/auth`, router.authRouter);
 
 app.use(middlewares.errorHandler);
 
