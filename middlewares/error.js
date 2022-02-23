@@ -28,6 +28,18 @@ const handleValidationError = (err) => {
   return new ErrorResponse(message, StatusCodes.BAD_REQUEST);
 };
 
+const handleJWTError = () =>
+  new ErrorResponse(
+    'Invalid Token! Please log in again ',
+    StatusCodes.UNAUTHORIZED
+  );
+
+const handleJWTExpiredError = () =>
+  new ErrorResponse(
+    'Your Token has expired ! Please log in again',
+    StatusCodes.UNAUTHORIZED
+  );
+
 module.exports = (err, req, res, next) => {
   let error = { ...err };
 
@@ -40,10 +52,17 @@ module.exports = (err, req, res, next) => {
     error = handleDuplicateKeys(err);
   }
   if (err.name === 'ValidationError') {
-    error = handleValidationError(error);
+    error = handleValidationError(err);
+  }
+  if (err.name === 'JsonWebTokenError') {
+    error = handleJWTError();
   }
 
-   res.status(err.statusCode || 500).json({
+  if (err.name === 'TokenExpiredError') {
+    error = handleJWTExpiredError();
+  }
+
+  res.status(err.statusCode || 500).json({
     status: 'Fail',
     message: err.message || 'Something went wrong',
   });

@@ -54,4 +54,11 @@ userSchema.methods.getSignedJWTToken = function () {
   });
 };
 
+userSchema.methods.matchPassword = async function (
+  candidatePassword,
+  userPassword
+) {
+  return await bcrypt.compare(candidatePassword, userPassword);
+};
+
 module.exports = model('User', userSchema);
