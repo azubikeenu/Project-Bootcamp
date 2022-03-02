@@ -1,5 +1,6 @@
-const { Schema, model, Error } = require('mongoose');
+const { Schema, model } = require('mongoose');
 const { ErrorResponse } = require('../utils');
+const { StatusCodes } = require('http-status-codes');
 const courseSchema = new Schema({
   title: {
     type: String,
@@ -40,6 +41,11 @@ const courseSchema = new Schema({
     ref: 'Bootcamp',
     required: true,
   },
+  user: {
+    type: Schema.Types.ObjectId,
+    ref: 'User',
+    required: true,
+  },
 });
 
 courseSchema.statics.calculateAverageCost = async function (bootcampId) {
@@ -74,14 +80,19 @@ courseSchema.pre('remove', function () {
 
 courseSchema.pre(/^findOneAnd/, async function (next) {
   this.r = await this.findOne();
+  if (!this.r) {
+    return next(
+      new ErrorResponse(
+        'No course found with that id in the db',
+        StatusCodes.NOT_FOUND
+      )
+    );
+  }
   next();
 });
 
 courseSchema.post(/^findOneAnd/, async function (doc, next) {
   //this.findOne(); doesnt work here because data has been updated
-  if (!this.r) {
-    return next(new ErrorResponse('The document is not found in the db', 404));
-  }
   await this.r.constructor.calculateAverageCost(this.r.bootcamp);
 });
 

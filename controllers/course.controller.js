@@ -65,11 +65,24 @@ module.exports = class CourseController {
 
   static createCourse = asyncHandler(async (req, res, next) => {
     req.body.bootcamp = req.params.bootcampId;
+    req.body.user = req.user.id ;
     const bootcamp = await Bootcamp.findById(req.params.bootcampId);
-    if (!course)
+    if (!bootcamp)
       return next(
-        new ErrorResponse(`No course found with id : ${req.params.id}`)
+        new ErrorResponse(`No bootcamp found with id : ${req.params.bootcampId}`)
       );
+    //make sure user is the bootcamp owner
+    if (
+      bootcamp.user.toString() !== req.user.id.toString() &&
+      req.user.role !== 'admin'
+    ) {
+      return next(
+        new ErrorResponse(
+          'You can only add courses to bootcamps created by you',
+          StatusCodes.FORBIDDEN
+        )
+      );
+    }
     const course = await Course.create(req.body);
     return res
       .status(StatusCodes.CREATED)
@@ -86,14 +99,24 @@ module.exports = class CourseController {
    */
 
   static updateCourse = asyncHandler(async (req, res, next) => {
-    const course = await Course.findByIdAndUpdate(req.params.id, req.body, {
+    let course = await Course.findById(req.params.id);
+    //make sure user is the course owner
+    if (
+      course.user.toString() !== req.user.id.toString() &&
+      req.user.role !== 'admin'
+    ) {
+      return next(
+        new ErrorResponse(
+          'Can only update courses created by you',
+          StatusCodes.FORBIDDEN
+        )
+      );
+    }
+    req.body.user = req.user.id ;
+    course = await Course.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
       runValidators: true,
     });
-    if (!course)
-      return next(
-        new ErrorResponse(`No course found with id : ${req.params.id}`)
-      );
     return res.status(StatusCodes.OK).json({ status: 'Success', data: course });
   });
   /**
@@ -111,6 +134,19 @@ module.exports = class CourseController {
       return next(
         new ErrorResponse(`No course found with id : ${req.params.id}`)
       );
+
+    //make sure user is the course owner
+    if (
+      course.user.toString() !== req.user.id.toString() &&
+      req.user.role !== 'admin'
+    ) {
+      return next(
+        new ErrorResponse(
+          'Can only delete courses created by you',
+          StatusCodes.FORBIDDEN
+        )
+      );
+    }
     course.remove();
     return res
       .status(StatusCodes.NO_CONTENT)

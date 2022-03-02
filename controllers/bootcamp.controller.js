@@ -3,7 +3,6 @@ const { Bootcamp } = require('../models');
 const { ErrorResponse, geocoder, QueryBuilder } = require('../utils');
 const { asyncHandler } = require('../middlewares');
 
-
 module.exports = class BootCampController {
   /**
    * @description Get all bootcamps
@@ -61,6 +60,17 @@ module.exports = class BootCampController {
    * @param {Function} next
    */
   static createBootcamp = asyncHandler(async (req, res, next) => {
+    req.body.user = req.user.id;
+    // get published bootcamps
+    const publishedBootcamp = await Bootcamp.findOne({ user: req.user.id });
+    if (publishedBootcamp && req.user.role !== 'admin') {
+      return next(
+        new ErrorResponse(
+          'Only admins can create more than one bootcamp',
+          StatusCodes.FORBIDDEN
+        )
+      );
+    }
     const bootcamp = await Bootcamp.create(req.body);
     res.status(StatusCodes.CREATED).json({ status: 'Success', data: bootcamp });
   });
@@ -74,10 +84,7 @@ module.exports = class BootCampController {
    * @param {Function} next
    */
   static updateBootcamp = asyncHandler(async (req, res, next) => {
-    const bootcamp = await Bootcamp.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true,
-    });
+    let bootcamp = await Bootcamp.findById(req.params.id);
     if (!bootcamp)
       return next(
         new ErrorResponse(
@@ -85,6 +92,24 @@ module.exports = class BootCampController {
           StatusCodes.NOT_FOUND
         )
       );
+
+    //make sure user is the bootcamp owner
+    if (
+      bootcamp.user.toString() !== req.user.id.toString() &&
+      req.user.role !== 'admin'
+    ) {
+      return next(
+        new ErrorResponse(
+          'Can only update bootcamps created by you',
+          StatusCodes.FORBIDDEN
+        )
+      );
+    }
+    bootcamp = await Bootcamp.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true,
+    });
+
     res.status(StatusCodes.OK).json({
       status: 'Success',
       data: { bootcamp },
@@ -108,6 +133,17 @@ module.exports = class BootCampController {
           StatusCodes.BAD_REQUEST
         )
       );
+    if (
+      bootcamp.user.toString() !== req.user.id.toString() &&
+      req.user.role !== 'admin'
+    ) {
+      return next(
+        new ErrorResponse(
+          'Can only delete bootcamps created by you',
+          StatusCodes.FORBIDDEN
+        )
+      );
+    }
     bootcamp.remove();
     res.status(StatusCodes.NO_CONTENT).json({ status: 'Success', data: {} });
   });
@@ -156,7 +192,19 @@ module.exports = class BootCampController {
           StatusCodes.BAD_REQUEST
         )
       );
-    await Bootcamp.findByIdAndUpdate(req.params.id, { photo: req.fileName});
+    //make sure user is the bootcamp owner
+    if (
+      bootcamp.user.toString() !== req.user.id.toString() &&
+      req.user.role !== 'admin'
+    ) {
+      return next(
+        new ErrorResponse(
+          'Can only update bootcamps created by you',
+          StatusCodes.FORBIDDEN
+        )
+      );
+    }
+    await Bootcamp.findByIdAndUpdate(req.params.id, { photo: req.fileName });
     return res
       .status(StatusCodes.OK)
       .json({ status: 'Success', data: req.fileName });
