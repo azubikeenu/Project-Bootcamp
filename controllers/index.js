@@ -1,9 +1,5 @@
-const BootCampController = require( './bootcamp.controller' );
-const CourseController = require( './course.controller' );
-const AuthController = require( './auth.controller' );
-
 module.exports = {
-    BootCampController,
-    CourseController,
-    AuthController
-}
+  BootCampController: require('./bootcamp.controller'),
+  CourseController: require('./course.controller'),
+  AuthController: require('./auth.controller'),
+};

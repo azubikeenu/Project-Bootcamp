@@ -1,5 +1,5 @@
-const Bootcamp = require('./Bootcamp');
-const Course = require('./Course');
-const User = require('./User');
-
-module.exports = { Bootcamp, Course,User };
+module.exports = {
+  Bootcamp: require('./Bootcamp'),
+  Course: require('./Course'),
+  User: require('./User'),
+};

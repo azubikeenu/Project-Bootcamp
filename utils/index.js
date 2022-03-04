@@ -1,6 +1,6 @@
-const ErrorResponse = require('./errorResponse');
-const geocoder = require('./geocoder');
-const QueryBuilder = require('./queryBuilder');
-const Email = require('./email')
-
-module.exports = { ErrorResponse, geocoder, QueryBuilder, Email };
+module.exports = {
+  ErrorResponse: require('./errorResponse'),
+  geocoder: require('./geocoder'),
+  QueryBuilder: require('./queryBuilder'),
+  Email: require('./email'),
+};

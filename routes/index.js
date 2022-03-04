@@ -1,9 +1,7 @@
-const bootCampRouter = require('./bootcamp.routes');
-const courseRouter = require('./course.routes');
-const authRouter = require('./auth.routes');
+
 
 module.exports = {
-  bootCampRouter,
-  courseRouter,
-  authRouter
+  bootCampRouter : require('./bootcamp.routes'),
+  courseRouter :  require('./course.routes'),
+  authRouter : require('./auth.routes')
 };
