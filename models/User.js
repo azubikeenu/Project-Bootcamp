@@ -2,6 +2,7 @@ const { Schema, model } = require('mongoose');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
+const { StatusCodes } = require('http-status-codes');
 
 const userSchema = new Schema({
   name: {

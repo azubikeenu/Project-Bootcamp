@@ -29,7 +29,7 @@ module.exports.protect = asyncHandler(async (req, res, next) => {
     token,
     process.env.JWT_SECRET
   );
-  console.log(decodedToken);
+
 
   const returnedUser = await User.findById(decodedToken.id);
   // check if user still exists
@@ -38,6 +38,7 @@ module.exports.protect = asyncHandler(async (req, res, next) => {
       new ErrorResponse(`The user doesn't exist`, StatusCodes.UNAUTHORIZED)
     );
   // check if password is changed
+
 
   req.user = returnedUser;
 

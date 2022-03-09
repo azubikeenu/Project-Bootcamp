@@ -1,13 +1,11 @@
 const express = require('express');
 const path = require('path');
 
-const fileupload = require('express-fileupload')
+const fileupload = require('express-fileupload');
 
 require('dotenv').config({
   path: path.join(__dirname, 'config', 'config.env'),
 });
-
-
 
 const morgan = require('morgan');
 const colors = require('colors');
@@ -33,13 +31,13 @@ app.use(express.json());
 // SERVING  STATIC  FILES
 app.use(express.static(path.join(__dirname, 'public')));
 
-
 //File uploading
-app.use(fileupload())
+app.use(fileupload());
 
 app.use(`${ROOT_PATH}/bootcamps`, router.bootCampRouter);
 app.use(`${ROOT_PATH}/courses`, router.courseRouter);
 app.use(`${ROOT_PATH}/auth`, router.authRouter);
+app.use(`${ROOT_PATH}/users`, router.userRouter);
 
 app.use(middlewares.errorHandler);
 
