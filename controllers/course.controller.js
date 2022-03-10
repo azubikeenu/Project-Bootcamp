@@ -65,11 +65,14 @@ module.exports = class CourseController {
 
   static createCourse = asyncHandler(async (req, res, next) => {
     req.body.bootcamp = req.params.bootcampId;
-    req.body.user = req.user.id ;
+    req.body.user = req.user.id;
     const bootcamp = await Bootcamp.findById(req.params.bootcampId);
     if (!bootcamp)
       return next(
-        new ErrorResponse(`No bootcamp found with id : ${req.params.bootcampId}`)
+        new ErrorResponse(
+          `No bootcamp found with id : ${req.params.bootcampId}`,
+          StatusCodes.NOT_FOUND
+        )
       );
     //make sure user is the bootcamp owner
     if (
@@ -112,7 +115,7 @@ module.exports = class CourseController {
         )
       );
     }
-    req.body.user = req.user.id ;
+    req.body.user = req.user.id;
     course = await Course.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
       runValidators: true,
@@ -129,10 +132,13 @@ module.exports = class CourseController {
    */
 
   static deleteCourse = asyncHandler(async (req, res, next) => {
-    const course = await Course.findById(req.params.id, req.body);
+    const course = await Course.findById(req.params.id);
     if (!course)
       return next(
-        new ErrorResponse(`No course found with id : ${req.params.id}`)
+        new ErrorResponse(
+          `No course found with id : ${req.params.id}`,
+          StatusCodes.NOT_FOUND
+        )
       );
 
     //make sure user is the course owner

@@ -79,7 +79,7 @@ courseSchema.pre('remove', function () {
 });
 
 courseSchema.pre(/^findOneAnd/, async function (next) {
-  this.r = await this.findOne();
+  this.r = await this.model.findOne(this.getQuery());
   if (!this.r) {
     return next(
       new ErrorResponse(

@@ -6,7 +6,6 @@ const castErrorHandler = (err) => {
     err.value instanceof Object
       ? `Invalid parameter ${Object.keys(err.value)[0]}`
       : err.value;
-
   const message =
     err.path === '_id'
       ? `No resource found with id ${value}`
@@ -42,7 +41,6 @@ const handleJWTExpiredError = () =>
 
 module.exports = (err, req, res, next) => {
   let error = { ...err };
-
   console.log(err.stack.red);
 
   if (err.name === 'CastError') {
@@ -62,8 +60,8 @@ module.exports = (err, req, res, next) => {
     error = handleJWTExpiredError();
   }
 
-  res.status(err.statusCode || 500).json({
+  res.status(error.statusCode || 500).json({
     status: 'Fail',
-    message: err.message || 'Something went wrong',
+    message: error.message || 'Something went wrong',
   });
 };

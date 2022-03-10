@@ -71,8 +71,16 @@ const bootcampSchema = new Schema(
       type: Number,
       min: [1, 'Must not be less than 1'],
       max: [10, 'Must not be greated than 10'],
+      set: (val) => Math.round(val * 10) / 10,
     },
-    averageCost: Number,
+    ratingsQuantity: {
+      default: 0,
+      type: Number,
+    },
+    averageCost: {
+      type: Number,
+      set: (val) => Math.round(val * 10) / 10,
+    },
     photo: {
       type: String,
       default: 'no-photo.jpg',
@@ -144,6 +152,7 @@ bootcampSchema.virtual('courses', {
 bootcampSchema.pre('remove', async function (next) {
   // this is actually cool
   await this.model('Course').deleteMany({ bootcamp: this._id });
+  await this.model('Review').deleteMany({ bootcamp: this._id });
 
   next();
 });

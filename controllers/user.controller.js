@@ -14,6 +14,7 @@ module.exports = class UserController {
    */
 
   static getUsers = asyncHandler(async (req, res, next) => {
+
     const { query } = new QueryBuilder(User.find(), req.query)
       .filter()
       .select()
@@ -38,7 +39,7 @@ module.exports = class UserController {
   static getUser = asyncHandler(async (req, res, next) => {
     const user = await User.findById(req.params.id);
     if (!user)
-      return next(new ErrorResponse('User does not exist in the database'));
+      return next(new ErrorResponse('User does not exist in the database' , StatusCodes.NOT_FOUND));
 
     res.status(StatusCodes.OK).json({
       status: 'Success',
@@ -78,7 +79,7 @@ module.exports = class UserController {
       new: true,
     });
     if (!user)
-      return next(new ErrorResponse('User does not exist in the database'));
+      return next(new ErrorResponse('User does not exist in the database' , StatusCodes.NOT_FOUND));
 
     res.status(StatusCodes.OK).json({
       status: 'Success',
@@ -97,7 +98,7 @@ module.exports = class UserController {
   static deleteUser = asyncHandler(async (req, res, next) => {
     const user = await User.findByIdAndDelete(req.params.id);
     if (!user)
-      return next(new ErrorResponse('User does not exist in the database'));
+      return next(new ErrorResponse('User does not exist in the database' , StatusCodes.NOT_FOUND));
 
     res.status(StatusCodes.NO_CONTENT).json({
       status: 'Success',

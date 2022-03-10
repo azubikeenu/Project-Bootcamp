@@ -3,4 +3,5 @@ module.exports = {
   courseRouter: require('./course.routes'),
   authRouter: require('./auth.routes'),
   userRouter: require('./user.routes'),
+  reviewRouter: require('./review.routes'),
 };

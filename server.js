@@ -38,6 +38,7 @@ app.use(`${ROOT_PATH}/bootcamps`, router.bootCampRouter);
 app.use(`${ROOT_PATH}/courses`, router.courseRouter);
 app.use(`${ROOT_PATH}/auth`, router.authRouter);
 app.use(`${ROOT_PATH}/users`, router.userRouter);
+app.use(`${ROOT_PATH}/reviews`, router.reviewRouter);
 
 app.use(middlewares.errorHandler);
 
