@@ -9,6 +9,7 @@ require('dotenv').config({
 
 const morgan = require('morgan');
 const colors = require('colors');
+const cookieParser = require('cookie-parser')
 const router = require('./routes');
 const DB = require('./config/db.config');
 
@@ -27,6 +28,9 @@ if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
 app.use(express.json());
+
+// COOKIE PARSER
+app.use(cookieParser())
 
 // SERVING  STATIC  FILES
 app.use(express.static(path.join(__dirname, 'public')));

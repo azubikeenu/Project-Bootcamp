@@ -49,8 +49,7 @@ module.exports = class AuthController {
         )
       );
     }
-    const token = user.getSignedJWTToken();
-    return res.status(StatusCodes.CREATED).json({ status: 'Success', token });
+    return AuthController.sendTokenResponse(user, res);
   });
 
   /**
@@ -66,6 +65,21 @@ module.exports = class AuthController {
     return res
       .status(StatusCodes.OK)
       .json({ status: 'Success', data: { user } });
+  });
+  /**
+   * @description Log user out / clear cookies
+   * @route GET /api/v1/auth/logout
+   * @access private
+   * @param {Object} req
+   * @param {Object} res
+   * @param {Function} next
+   */
+  static logout = asyncHandler(async (req, res, next) => {
+    res.cookie('token', 'none', {
+      expires: new Date(Date.now() + 10 * 1000),
+      httpOnly: true,
+    });
+    return res.status(StatusCodes.OK).json({ status: 'Success', data: {} });
   });
 
   /**
@@ -211,7 +225,17 @@ module.exports = class AuthController {
 
   static sendTokenResponse(user, res) {
     const token = user.getSignedJWTToken();
-    return res.status(StatusCodes.OK).json({ status: 'Success', token });
+    // set the cookie
+    const options = {
+      expires: new Date(
+        Date.now() + process.env.JWT_COOKIE_EXPIRE * 24 * 60 * 60 * 1000
+      ),
+      httpOnly: true,
+    };
+    return res
+      .status(StatusCodes.OK)
+      .cookie('token', token, options)
+      .json({ status: 'Success', token });
   }
 
   static filteredBody = (obj, ...allowedFields) => {

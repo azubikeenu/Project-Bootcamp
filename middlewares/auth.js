@@ -13,11 +13,9 @@ module.exports.protect = asyncHandler(async (req, res, next) => {
     req.headers.authorization.startsWith('Bearer')
   ) {
     token = req.headers.authorization.split(' ')[1];
+  } else if (req.cookies.token) {
+    token = req.cookies.token;
   }
-
-  //   else if (req.cookies.token) {
-  //     token = req.cookies.jwt;
-  //   }
 
   if (!token) {
     return next(
@@ -30,7 +28,6 @@ module.exports.protect = asyncHandler(async (req, res, next) => {
     process.env.JWT_SECRET
   );
 
-
   const returnedUser = await User.findById(decodedToken.id);
   // check if user still exists
   if (!returnedUser)
@@ -39,9 +36,7 @@ module.exports.protect = asyncHandler(async (req, res, next) => {
     );
   // check if password is changed
 
-
   req.user = returnedUser;
-
   next();
 });
 
