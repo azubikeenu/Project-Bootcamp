@@ -39,7 +39,6 @@ module.exports = class AuthController {
       );
     //check for user
     const user = await User.findOne({ email }).select('+password');
-
     // validate email and password
     if (!user || !(await user.matchPassword(password, user.password))) {
       return next(

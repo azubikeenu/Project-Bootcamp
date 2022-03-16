@@ -9,7 +9,14 @@ require('dotenv').config({
 
 const morgan = require('morgan');
 const colors = require('colors');
-const cookieParser = require('cookie-parser')
+const cookieParser = require('cookie-parser');
+const mongoSanitize = require('express-mongo-sanitize');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
+const hpp = require('hpp');
+const xss = require('xss-clean');
+
+const cors = require('cors');
 const router = require('./routes');
 const DB = require('./config/db.config');
 
@@ -30,13 +37,41 @@ if (process.env.NODE_ENV === 'development') {
 app.use(express.json());
 
 // COOKIE PARSER
-app.use(cookieParser())
+app.use(cookieParser());
+
+// Data Sanitization against noSQL injection
+app.use(mongoSanitize());
+
+//http security with helmet
+app.use(helmet());
+
+//  Data Sanitization against XSS
+app.use(xss());
 
 // SERVING  STATIC  FILES
 app.use(express.static(path.join(__dirname, 'public')));
 
 //File uploading
 app.use(fileupload());
+
+// CREATE A RATE LIMITER
+const limiter = rateLimit({
+  max: 1000,
+  windowMs: 60 * 60 * 1000,
+  message: 'Too many request from this IP please try again in an hour',
+});
+
+app.use(ROOT_PATH, limiter);
+
+//Prevent parameter pollution
+app.use(hpp());
+
+// Use CORS
+app.use(cors());
+app.options('*' , cors());
+
+
+
 
 app.use(`${ROOT_PATH}/bootcamps`, router.bootCampRouter);
 app.use(`${ROOT_PATH}/courses`, router.courseRouter);
