@@ -1,4 +1,4 @@
-# DevCamper API
+# Bootcamp API
 
 > This is a backend API for bootcamps and related courses
 
