@@ -127,7 +127,7 @@ module.exports = class AuthController {
         )
       );
     }
-    res.status(200).json({
+    res.status(StatusCodes.OK).json({
       status: 'Success',
       message: 'Token sent to email',
     });

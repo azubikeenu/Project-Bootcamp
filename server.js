@@ -39,6 +39,7 @@ app.use(express.json());
 // COOKIE PARSER
 app.use(cookieParser());
 
+
 // Data Sanitization against noSQL injection
 app.use(mongoSanitize());
 
